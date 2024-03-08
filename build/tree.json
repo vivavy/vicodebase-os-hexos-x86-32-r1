@@ -3,6 +3,7 @@
         "dist/bootsect.com",
         "dist/hxldr.com"
     ],
+    "size": 1048576,
     "::": [
         {
             "name": "sys",

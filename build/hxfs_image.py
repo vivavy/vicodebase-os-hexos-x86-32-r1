@@ -1,4 +1,4 @@
-import os, sys, json
+import sys, json
 
 
 configJson = sys.argv[-1]
@@ -20,10 +20,9 @@ def fwrite(path: str, data: bytes, mode = "wb") -> None:
         f.write(data)
 
 
-def create_fs_metadata(root_dir_offset, root_dir_backup_offset, sector_using_table) -> bytes:
-    metadata = b"\u05eb\u4890\u4658\ub853"
-    metadata += root_dir_offset.to_bytes(4, byteorder="little")
-    metadata += root_dir_backup_offset.to_bytes(4, byteorder="little")
+def create_fs_metadata(root_dir_offset, sector_using_table) -> bytes:
+    metadata = root_dir_offset.to_bytes(4, byteorder="little")
+    metadata += b"\0\0\0\0"
     metadata += sector_using_table.to_bytes(4, byteorder="little")
     return metadata
 
@@ -63,57 +62,41 @@ def add_aligned(dest: bytes, src: bytes, align: int = 512) -> bytes:
         src += b"\0" * (align - len(src) % align)
     return dest + src
 
-
 def create_data_section(tree: Node[Node]) -> bytes:
     data = b""
-
-    glob_ofs = len(tree.children) * 4
+    sectors_using_table = [b"\0\0\0\0"] * (round(config["size"] / 512))
 
     for i in tree:
         if i.type == "dir":
-            i.data = len(data)
+            sectors = round(len(create_data_section(i)) / 512)
+            for j in range(sectors):
+                sectors_using_table[round(len(data) / 512) + j] = (round(len(data) / 512) + j + 1).to_bytes(4, byteorder="little")
+            i.data = len(data) + data_offset
             data = add_aligned(data, create_data_section(i))
         elif i.type == "file":
-            i.data = len(data)
-            data = add_aligned(data, i.data);
+            sectors = round(len(i[0]) / 512)
+            for j in range(sectors):
+                sectors_using_table[round(len(data) / 512) + j] = (round(len(data) / 512) + j + 1).to_bytes(4, byteorder="little")
+            i.data = len(data) + data_offset
+            data = add_aligned(data, i[0]);
         else:
-            raise Exception(f"Unknown type: {i.type}")
+            raise TypeError(f"Unknown type: {i.type}")
 
-    return data
-
-
-def compile_tree(tree: Node[Node]) -> bytes:
-    data = b""
-
-    for i in tree:
-        if i.type == "dir":
-            data += i.data.to_bytes(4, byteorder="little")
-        elif i.type == "file":
-            data += i.data.to_bytes(4, byteorder="little")
-        else:
-            raise Exception(f"Unknown type: {i.type}")
-    
-    for i in tree:
-        if i.type == "dir":
-            data += compile_tree(i)
-        elif i.type == "file":
-            data += i.children[0]
-        else:
-            raise Exception(f"Unknown type: {i.type}")
-    
-    return add_aligned("", data)
+    return add_aligned(b"".join(tuple(sectors_using_table)), data)
 
 config = load_config(configJson)
 
-bootsect = config[":"][0]
-hxldr = config[":"][1]
+bootsect = fread(config[":"][0])
+hxldr = fread(config[":"][1])
+
+data_offset = len(bootsect) + len(hxldr)
 
 tree = create_tree(config["::"])
 
 data = create_data_section(tree)
 
-metadata = create_fs_metadata(len(data), len(data), len(tree.children) * 4)
+metadata = create_fs_metadata(len(data), len(tree) * 4)
 
-fs = add_aligned(metadata + bootsect[16:], data)
+fs = add_aligned(bootsect[:2] + metadata + bootsect[16:], data)
 
 fwrite(outputFile, bootsect + hxldr + fs)
