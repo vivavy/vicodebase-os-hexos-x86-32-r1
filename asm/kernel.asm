@@ -12,6 +12,10 @@ _start:
     ; set up environment
     mov esp, 4096
 
+    mov eax, 0xB8001
+
+    mov byte [eax], 'Y'
+
     mov byte [4096], dl
     mov eax, 0
     mov ebx, 0
