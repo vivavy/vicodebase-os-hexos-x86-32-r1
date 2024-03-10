@@ -7,7 +7,7 @@ section ".text" executable
 
 db "ENTRY POINT", 0
 _start:
-    jmp halt  ; TODO: remove this line
+    ; jmp halt  ; TODO: remove this line
     ; set up environment
     mov esp, 4096
 
