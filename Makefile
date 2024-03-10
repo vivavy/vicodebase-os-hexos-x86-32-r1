@@ -1,23 +1,20 @@
-# this OS building via flat assembler
-
-# build bootloader
-boot: clean
-	fasm src/bootsect.asm dist/bootsect.com
-
-# build hexos loader
-hxldr: clean
-	fasm src/hxldr.asm dist/hxldr.com
-
-# build kernel
-kernel: clean
-	fasm src/kernel/main.asm dist/hxos.hxe
-
-# build hexos image
-image: clean boot hxldr kernel
-	python3 build/hxfs_image.py dist/hxos.raw build/tree.json
-
-# clean
-clean:
-	rm -f dist/*.com
-	rm -f dist/*.raw
+run: build
 	clear
+	qemu-system-i386 -drive file=dist/hxos.raw,format=raw 2>/dev/null
+
+build: boot hxldr kernel
+	cat dist/boot dist/hxldr dist/kernel.elf dist/fs > dist/hxos.raw
+	fasm asm/image.asm image.raw
+
+boot:
+	fasm asm/mbr.asm dist/boot
+
+hxldr:
+	fasm asm/hxldr.asm dist/hxldr
+
+kernel:
+	fasm asm/kernel.asm dist/kernel.o
+	g++ -m32 -nostdlib -ffreestanding -Tbuild/kernel.ld -o dist/kernel.elf src/kernel/main.cpp dist/kernel.o
+
+clean:
+	rm -rf dist/*

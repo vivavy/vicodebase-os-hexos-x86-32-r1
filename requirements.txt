@@ -1,0 +1,4 @@
+fasm
+gcc
+binutils
+qemu-system-i386
