@@ -2,6 +2,7 @@ format ELF
 
 extrn main
 public _start
+public videobuffer
 
 section ".text" executable
 
@@ -34,3 +35,7 @@ _start:
 halt:
     hlt
     jmp halt
+
+section ".data" writeable
+
+videobuffer dd 0xB8000
