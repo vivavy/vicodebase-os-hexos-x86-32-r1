@@ -1,0 +1,24 @@
+macro seg base, limit, access, flags {
+    dw limit AND 0xffff
+    dw base AND 0xffff
+    db (base SHR 16) AND 0xff
+    db access
+    db ((limit SHR 16) AND 0x0f) OR (flags)  
+    db (base SHR 24) AND 0xff
+}
+
+ACC_PRESENT  = 10000100b
+ACC_RING0    = 00000000b
+ACC_RING1    = 00100000b
+ACC_RING2    = 01000000b
+ACC_RING3    = 01100000b
+ACC_TSSTYPE  = 00010000b
+ACC_CODETYPE = 00001000b
+ACC_DATATYPE = 00000000b
+ACC_WRITEBLE = 00000010b
+ACC_CODEREAD = 00000010b
+
+FLAG_GRANULA = 10000000b
+FLAG_BITS16  = 00000000b
+FLAG_BITS32  = 01000000b
+FLAG_BITS64  = 00100000b

@@ -1,20 +1,15 @@
 run: build
-	clear
-	qemu-system-i386 -drive file=dist/hxos.raw,format=raw 2>/dev/null
+	qemu-system-i386 -drive file=dist/image.raw,format=raw 2>/dev/null
 
-build: boot hxldr kernel
-	cat dist/boot dist/hxldr dist/kernel.elf dist/fs > dist/hxos.raw
-	fasm asm/image.asm image.raw
+build: boot
+	fasm src/image.asm dist/image.raw 2>dist/log.txt
+	rm -f boot.bin kernel.hxe dist/log.txt
 
-boot:
-	fasm asm/mbr.asm dist/boot
+boot: kernel
+	fasm src/boot/boot.asm boot.bin 2>dist/log.txt
 
-hxldr:
-	fasm asm/hxldr.asm dist/hxldr
-
-kernel:
-	fasm asm/kernel.asm dist/kernel.o
-	g++ -m32 -nostdlib -ffreestanding -Tbuild/kernel.ld -o dist/kernel.elf src/kernel/main.cpp dist/kernel.o
+kernel: clean
+	fasm src/kernel/main.asm kernel.hxe 2>dist/log.txt 
 
 clean:
 	rm -rf dist/*

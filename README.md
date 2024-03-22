@@ -28,6 +28,12 @@ make build
 make run
 ```
 
+or
+
+```sh
+make
+```
+
 ## License
 
 HexOS is licensed under the MPL-2.0 license.
