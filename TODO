@@ -1,0 +1,11 @@
+- init clock in real mode
+- create racing multithreding system
+- create simple context system
+- create simple memory manager
+- create simple file system
+- fix entering protected mode
+- write entering real mode for BIOS interrupts
++ write bootloader for HXE kernel
++ write kernel bootstrap code
++ setup not bad project file structure
++ start writing ViALib (ViALib - Vi's Assembly Library - wwill be a big macro collection for flat assember)

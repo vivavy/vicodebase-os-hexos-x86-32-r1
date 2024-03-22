@@ -44,10 +44,12 @@ _start:
     int 0x10
     mov al, 'Z'
     int 0x10
+    jmp _go_to_32bit_mode
     jmp $
 
 include 'kernel.inc'
 
+; BUG: this code is broken. Fix protected mode!
 _go_to_32bit_mode:
     cli
     cld

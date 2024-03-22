@@ -30,6 +30,7 @@ main:
     !print a_HexOSDisk
     !print a_Loading
     
+    ; TODO: wrap this in a macro
     mov ax, 0
     mov es, ax
     mov bx, 0x1000

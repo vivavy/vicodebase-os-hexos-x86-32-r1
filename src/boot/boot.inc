@@ -21,6 +21,8 @@ HXE_STACKTOP = HXE_ENTRY + 4
 HXE_CHECKSUM = HXE_STACKTOP + 4
 HXE_FOOTER = HXE_CHECKSUM + 4
 
+; FIXME: write CHECKSUM checking code
+; FIXME: write bootstrap relative to zero
 startup_hxe:
     ; check magic number
     mov eax, dword [ebx]
