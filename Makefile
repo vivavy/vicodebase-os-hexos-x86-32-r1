@@ -1,5 +1,4 @@
-# note: line 5: 2>/dev/null
-# I made it bcoz I don't want to see the output of the broken gtk themes
+# NOTE: line 4: 2>/dev/null - I made it bcoz I don't want to see the output of the broken gtk themes
 
 run: build
 	qemu-system-i386 -drive file=dist/image.raw,format=raw 2>/dev/null
